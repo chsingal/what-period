@@ -121,18 +121,6 @@
         <div class="value" id="today"></div>
       </div>
       <div class="row">
-        <div class="label">Fiscal Year Start</div>
-        <div class="value" id="fyStart"></div>
-      </div>
-      <div class="row">
-        <div class="label">Quarter</div>
-        <div class="value" id="quarter"></div>
-      </div>
-      <div class="row">
-        <div class="label">Period # (6 wks)</div>
-        <div class="value" id="periodNum"></div>
-      </div>
-      <div class="row">
         <div class="label">Period Dates</div>
         <div class="value" id="periodDates"></div>
       </div>
@@ -206,9 +194,6 @@
       document.getElementById('answer').textContent = answerText;
 
       document.getElementById('today').textContent = fmtDate(info.today);
-      document.getElementById('fyStart').textContent = fmtDate(info.fyStart);
-      document.getElementById('quarter').textContent = `Q${info.quarterNumber}`;
-      document.getElementById('periodNum').textContent = `Period ${info.periodNumber}`;
       document.getElementById('periodDates').textContent = `${fmtDate(info.periodStart)} – ${fmtDate(info.periodEnd)}`;
 
       document.getElementById('chip-fy').textContent = info.fiscalYearLabel;
