@@ -11,7 +11,6 @@
       --muted: #6b7280;
       --border: #e5e7eb;
       --radius-lg: 1.25rem;
-      --radius-sm: 0.5rem;
     }
 
     * {
@@ -30,7 +29,7 @@
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg);
       color: var(--fg);
-      padding: 2rem 1rem 6rem;
+      padding: 2rem 1rem;
       line-height: 1.25;
     }
 
@@ -80,35 +79,6 @@
       font-feature-settings: "tnum";
       font-variant-numeric: tabular-nums;
     }
-
-    footer {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-top: 1px solid var(--border);
-      background-color: rgba(255,255,255,0.8);
-      -webkit-backdrop-filter: blur(12px);
-      backdrop-filter: blur(12px);
-      font-size: 0.75rem;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      row-gap: 0.5rem;
-      column-gap: 1rem;
-      padding: 0.75rem 1rem;
-    }
-
-    .chip {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 0.4rem 0.6rem;
-      line-height: 1.2;
-      font-weight: 500;
-      color: var(--fg);
-      background-color: #fff;
-    }
   </style>
 </head>
 <body>
@@ -126,12 +96,6 @@
       </div>
     </section>
   </main>
-
-  <footer>
-    <div class="chip" id="chip-fy"></div>
-    <div class="chip" id="chip-q"></div>
-    <div class="chip" id="chip-period"></div>
-  </footer>
 
   <script>
     function getFiscalInfo(date) {
@@ -163,7 +127,6 @@
         quarterNumber = 4;
       }
 
-      // Calculate period start/end dates
       const periodStart = new Date(fyStart.getTime() + (periodNumber - 1) * periodLengthDays * 24 * 60 * 60 * 1000);
       const periodEnd = new Date(periodStart.getTime() + (periodLengthDays - 1) * 24 * 60 * 60 * 1000);
 
@@ -171,7 +134,6 @@
         fiscalYearLabel,
         quarterNumber,
         periodNumber,
-        fyStart,
         today: date,
         periodStart,
         periodEnd
@@ -195,10 +157,6 @@
 
       document.getElementById('today').textContent = fmtDate(info.today);
       document.getElementById('periodDates').textContent = `${fmtDate(info.periodStart)} – ${fmtDate(info.periodEnd)}`;
-
-      document.getElementById('chip-fy').textContent = info.fiscalYearLabel;
-      document.getElementById('chip-q').textContent = `Q${info.quarterNumber}`;
-      document.getElementById('chip-period').textContent = `Period ${info.periodNumber}`;
     }
 
     render();
