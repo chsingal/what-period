@@ -91,48 +91,80 @@
   </main>
 
   <script>
-    const PERIODS = [
-      { num: 1, start: '2025-05-01', end: '2025-06-11' },
-      { num: 2, start: '2025-06-12', end: '2025-07-23' },
-      { num: 3, start: '2025-07-24', end: '2025-09-21' },
-      { num: 4, start: '2025-09-22', end: '2025-10-31' },
-      { num: 5, start: '2025-11-01', end: '2025-12-12' },
-      { num: 6, start: '2025-12-13', end: '2026-01-23' },
-      { num: 7, start: '2026-01-24', end: '2026-03-06' },
-      { num: 8, start: '2026-03-07', end: '2026-04-17' }
-    ];
+    // Start counting from 9/22/2025 but label that as Period 4
+    const START_DATE = new Date('2025-09-22'); // Monday
+    const PERIOD_LENGTH_DAYS = 42;
+    const START_PERIOD_NUMBER = 4;
+
+    function buildPeriods(startDate, count = 8) {
+      const periods = [];
+      let currentStart = new Date(startDate);
+      let currentNum = START_PERIOD_NUMBER;
+
+      for (let i = 0; i < count; i++) {
+        const nominalEnd = new Date(currentStart);
+        nominalEnd.setDate(nominalEnd.getDate() + (PERIOD_LENGTH_DAYS - 1));
+
+        // Snap to Friday on or before nominal end
+        const day = nominalEnd.getDay(); // 0=Sun ... 5=Fri ... 6=Sat
+        const backToFriday = (day - 5 + 7) % 7;
+        const snappedEnd = new Date(nominalEnd);
+        snappedEnd.setDate(snappedEnd.getDate() - backToFriday);
+
+        // Next start = Monday after that Friday
+        const nextStart = new Date(snappedEnd);
+        nextStart.setDate(nextStart.getDate() + 3);
+
+        periods.push({ num: currentNum, start: new Date(currentStart), end: snappedEnd });
+
+        currentStart = nextStart;
+        currentNum++;
+      }
+      return periods;
+    }
+
+    const PERIODS = buildPeriods(START_DATE);
 
     function getFiscalInfo(date) {
       const d = new Date(date);
-      let period = PERIODS.find(p => d >= new Date(p.start) && d <= new Date(p.end));
-      if (!period && d < new Date(PERIODS[0].start)) period = PERIODS[0];
-      if (!period && d > new Date(PERIODS[PERIODS.length - 1].end)) period = PERIODS[PERIODS.length - 1];
+      let period = PERIODS.find(p => d >= p.start && d <= p.end);
+      if (!period && d < PERIODS[0].start) period = PERIODS[0];
+      if (!period && d > PERIODS[PERIODS.length - 1].end) period = PERIODS[PERIODS.length - 1];
 
-      const fyLabel = d.getMonth() >= 4 ? `FY${(d.getFullYear() + 1).toString().slice(-2)}` : `FY${d.getFullYear().toString().slice(-2)}`;
-      const quarter = Math.ceil(period.num / 2);
-      const nextPeriod = PERIODS[period.num] || null;
+      const idx = PERIODS.findIndex(p => p.num === period.num);
+      const next = PERIODS[idx + 1] || null;
+
+      const fiscalYearLabel = 'FY26';
+      const quarterNumber = Math.ceil(period.num / 2);
 
       return {
-        fiscalYearLabel: fyLabel,
+        fiscalYearLabel,
+        quarterNumber,
         periodNumber: period.num,
-        quarterNumber: quarter,
         periodStart: new Date(period.start),
         periodEnd: new Date(period.end),
-        nextPeriod,
-        today: d
+        nextPeriod: next,
+        today: d,
       };
     }
 
     function fmtDate(d) {
-      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      return d.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
     }
 
     function render() {
       const info = getFiscalInfo(new Date());
+
       document.getElementById('answer').textContent = `${info.fiscalYearLabel} Q${info.quarterNumber} Period ${info.periodNumber}`;
       document.getElementById('today').textContent = fmtDate(info.today);
       document.getElementById('periodDates').textContent = `${fmtDate(info.periodStart)} – ${fmtDate(info.periodEnd)}`;
-      document.getElementById('nextPeriod').textContent = info.nextPeriod ? `${fmtDate(new Date(info.nextPeriod.start))} – ${fmtDate(new Date(info.nextPeriod.end))}` : 'N/A';
+      document.getElementById('nextPeriod').textContent = info.nextPeriod
+        ? `${fmtDate(new Date(info.nextPeriod.start))} – ${fmtDate(new Date(info.nextPeriod.end))}`
+        : 'N/A';
     }
 
     render();
